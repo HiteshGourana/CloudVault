@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+  # ── Database Service (PostgreSQL) ───────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: cloudvault_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-cloudvault}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cloudvault_network
+
+  # ── Backend API Service (FastAPI) ───────────────────────────────────────────
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: cloudvault_backend
+    restart: always
+    expose:
+      - "8000"
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-cloudvault}
+      SECRET_KEY: ${SECRET_KEY}
+      CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY}
+      DEFAULT_AWS_REGION: ${DEFAULT_AWS_REGION:-ap-south-1}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cloudvault_network
+
+  # ── Frontend App Service (Vite/React) ───────────────────────────────────────
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: cloudvault_frontend
+    restart: always
+    expose:
+      - "80"
+    depends_on:
+      - backend
+    networks:
+      - cloudvault_network
+
+  # ── Reverse Proxy Service (Nginx) ───────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: cloudvault_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - cloudvault_network
+
+networks:
+  cloudvault_network:
+    name: cloudvault_network
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: cloudvault_postgres_data

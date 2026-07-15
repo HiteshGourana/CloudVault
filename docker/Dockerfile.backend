@@ -1,0 +1,48 @@
+# ── Stage 1: Build Dependencies ──────────────────────────────────────────────
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+# Install system utilities needed to build PostgreSQL adapter (psycopg2) and compile dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ── Stage 2: Run Application ─────────────────────────────────────────────────
+FROM python:3.11-slim AS runner
+
+WORKDIR /app
+
+# Install runtime PostgreSQL client library and curl for health check
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy source code
+COPY backend/ /app/backend/
+COPY database/ /app/database/
+COPY alembic.ini /app/
+
+# Environment defaults
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+
+# Expose port
+EXPOSE 8000
+
+# Run uvicorn server
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT}"]

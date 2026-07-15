@@ -1,0 +1,66 @@
+# ============================================================
+# CloudVault — .gitignore
+# ============================================================
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+pip-wheel-metadata/
+MANIFEST
+
+# ── Virtual Environments ──────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Environment Variables ─────────────────────────────────────
+# NEVER commit the real .env — only .env.example
+.env
+*.env.local
+*.env.production
+
+# ── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Testing ──────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ── Logs ─────────────────────────────────────────────────────
+backend/logs/*.log
+backend/logs/*.zip
+
+# ── Database ─────────────────────────────────────────────────
+*.db
+*.sqlite3
+
+# ── Node / Frontend ──────────────────────────────────────────
+node_modules/
+.next/
+frontend/dist/
+frontend/build/
+
+# ── Docker ───────────────────────────────────────────────────
+# Keep docker files tracked — ignore only local overrides
+docker-compose.override.yml
+
+# ── Alembic ──────────────────────────────────────────────────
+# Track migration files — they are source code
+# Only ignore the .gitkeep placeholder
+database/migrations/versions/.gitkeep

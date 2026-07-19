@@ -18,7 +18,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from backend.models.bucket import Bucket
+    from backend.models.file import File
 
 class Folder(Base):
     """
@@ -79,7 +83,7 @@ class Folder(Base):
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────
-    bucket: Mapped["Bucket"] = relationship("Bucket", back_populates="folders")  # type: ignore[name-defined]
+    bucket: Mapped["Bucket"] = relationship("Bucket", back_populates="folders")  
     
     # Self-referential relationship for parent/child navigation
     parent: Mapped["Folder | None"] = relationship(
@@ -93,7 +97,7 @@ class Folder(Base):
         cascade="all, delete-orphan",
     )
     # Sprint 5: S3 files metadata cached inside this virtual folder
-    files: Mapped[list["File"]] = relationship(  # type: ignore[name-defined]
+    files: Mapped[list["File"]] = relationship(  
         "File",
         back_populates="folder",
         cascade="all, delete-orphan",

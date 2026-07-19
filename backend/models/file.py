@@ -15,6 +15,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from backend.models.bucket import Bucket
+    from backend.models.folder import Folder
+    from backend.models.shared_link import SharedLink
 
 
 class UploadStatus(str, enum.Enum):
@@ -146,10 +151,10 @@ class File(Base):
         nullable=True,
         comment="Timestamp when the file was soft-deleted",
     )
-    bucket: Mapped["Bucket"] = relationship("Bucket", back_populates="files")  # type: ignore[name-defined]
-    folder: Mapped["Folder | None"] = relationship("Folder", back_populates="files")  # type: ignore[name-defined]
+    bucket: Mapped["Bucket"] = relationship("Bucket", back_populates="files")  
+    folder: Mapped["Folder | None"] = relationship("Folder", back_populates="files") 
     # Sprint 8: S3 shared links generated for this file
-    shared_links: Mapped[list["SharedLink"]] = relationship(  # type: ignore[name-defined]
+    shared_links: Mapped[list["SharedLink"]] = relationship( 
         "SharedLink",
         back_populates="file",
         cascade="all, delete-orphan",

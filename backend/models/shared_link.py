@@ -15,7 +15,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from backend.models.user import User
+    from backend.models.file import File
 
 class ShareType(str, enum.Enum):
     """
@@ -101,8 +105,8 @@ class SharedLink(Base):
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────
-    user: Mapped["User"] = relationship("User", back_populates="shared_links")  # type: ignore[name-defined]
-    file: Mapped["File | None"] = relationship("File", back_populates="shared_links")  # type: ignore[name-defined]
+    user: Mapped["User"] = relationship("User", back_populates="shared_links") 
+    file: Mapped["File | None"] = relationship("File", back_populates="shared_links")
 
     # ── Constraints & Indexes ──────────────────────────────────────────────────
     __table_args__ = (

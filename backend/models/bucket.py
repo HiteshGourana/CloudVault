@@ -37,10 +37,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
 from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
     from backend.models.user import User
-    from backend.models.bucket import Bucket
+    from backend.models.aws_account import AWSAccount
+    from backend.models.folder import Folder
+    from backend.models.file import File
 
 class BucketType(str, enum.Enum):
     """

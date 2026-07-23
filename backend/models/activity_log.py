@@ -8,13 +8,15 @@ Sprint 10 — Enterprise Features (Audit, Search, Notifications & Admin)
 
 import uuid
 from datetime import datetime, timezone
-
+from typing import TYPE_CHECKING
 from sqlalchemy import DateTime, ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
 
+if TYPE_CHECKING:
+    from backend.models.user import User
 
 class ActivityLog(Base):
     """
@@ -87,7 +89,7 @@ class ActivityLog(Base):
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────
-    user: Mapped["User"] = relationship("User")  # type: ignore[name-defined]
+    user: Mapped["User"] = relationship("User")# type: ignore[name-defined]
 
     # ── Constraints & Indexes ──────────────────────────────────────────────────
     __table_args__ = (
